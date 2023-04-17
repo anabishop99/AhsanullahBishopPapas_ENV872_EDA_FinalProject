@@ -1,0 +1,73 @@
+---
+title: "DataProcessing"
+author: "Tasneem Ahsanullah"
+date: "2023-04-14"
+output: html_document
+editor_options: 
+  chunk_output_type: console
+---
+
+
+
+```{r}
+library(tidyverse)
+library(here)
+library(lubridate)
+here()
+```
+
+```{r}
+whale_points <- read.csv("./Data/whaleshark_data/dataset_points.csv", stringsAsFactors = T)
+```
+
+```{r}
+citation <- read_csv("./Data/whaleshark_data/dataset_citation.csv")
+```
+
+
+```{r}
+gom <- whale_points %>% filter(latitude >= 17 & latitude <= 30) %>% filter (longitude >= -98 & longitude <= -79)
+```
+
+```{r}
+gom_clean <- gom %>% separate(date_time, into = c('date','time'), sep=" ")
+gom_clean$date <- ymd(gom_clean$date)
+class(gom_clean$date)
+```
+
+
+
+STATISTICS
+```{r}
+#importing tidyverse, agricolae, lubridate, here
+library(tidyverse)
+library(agricolae)
+library(lubridate)
+library(here)
+here()
+
+```
+
+```{r}
+whale.plot <-
+  ggplot(gom_clean, aes(x=Date,y=temperature_C))+
+  geom_point()+
+  geom_smooth(method="lm",color="blue",se=FALSE)+
+  ylim(0,35)+
+  labs(
+  x="Depth",
+  y="Temperature (C)",
+  title = "Depth by Temperature"
+  )
+
+print(NTL.plot)
+```
+
+
+```{r}
+#7
+#linear regression of depth by temperature
+NTL.regression <- lm(data=NTL.chem.phys.subset,depth~temperature_C)
+summary(NTL.regression)
+
+```
