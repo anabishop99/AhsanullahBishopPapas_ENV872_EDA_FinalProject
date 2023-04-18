@@ -15,3 +15,4 @@ gom <- points %>% filter(latitude >= 17 & latitude <= 30) %>% filter (longitude 
 gom_clean <- gom %>% separate(date_time, into = c('date','time'), sep=" ")
 
 gom_clean$date <- ymd(gom_clean$date)
+
