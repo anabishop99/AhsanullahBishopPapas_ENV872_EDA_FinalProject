@@ -35,5 +35,7 @@ sightings_all_months[is.na(sightings_all_months)] <- 0
 #initial timeseries
 ggplot(sightings_all_months, aes(x = month_yr, y = total_sightings)) +
   geom_line() +
-  labs(x = "Date", y = "Total Monthly Sightings") +
-  theme_minimal()
+  labs(x = "Date", y = "Total Monthly Sightings", title = "Total Monthly Sightings in the Gulf of Mexico Over Time") +
+  theme_minimal() +
+  theme(plot.title = element_text(hjust = 0.5)) 
+
