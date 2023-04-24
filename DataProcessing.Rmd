@@ -7,7 +7,7 @@ editor_options:
   chunk_output_type: console
 ---
 
-
+### Wrangling
 
 ```{r}
 library(tidyverse)
@@ -36,8 +36,20 @@ class(gom_clean$date)
 ```
 
 
+###SST
+```{r}
+library(ncdf4)
+library(rgdal)
+library(raster)
+library(ggplot2)
+```
 
-STATISTICS
+```{r}
+sst <- nc_open('AQUA_MODIS.20230101_20230131.L3m.MO.SST.sst.9km.nc')
+```
+
+
+###STATISTICS
 ```{r}
 #importing tidyverse, agricolae, lubridate, here
 library(tidyverse)
