@@ -4,6 +4,7 @@ library(trend)
 library(zoo)
 library(tseries)
 library(dplyr)
+library(cowplot)
 
 #read in data
 gom_sightings <- read_csv("./Data/whaleshark_data/cleaned_gom_data.csv")
@@ -135,15 +136,7 @@ western_long_plot <- ggplot(western_long_sightings_all_months, aes(x = month_yr,
   theme(plot.title = element_text(hjust = 0.5)) 
 
 # compare all plots together
-library(cowplot)
 plot_grid(upper_lat_plot, lower_lat_plot, eastern_long_plot, western_long_plot, nrow = 4, align = 'v', rel_heights = c(1, 1, 1, 1))
-
-#need to figure out how to view all plots together
-# bad but usable idea - set each date range to the range with the biggest date. Not preferable, this is messy
-# or, try to figure out how to align plots
-
-
-
 
 
 
@@ -344,6 +337,187 @@ lat_29_plot <- ggplot(lat_29_sightings_all_months, aes(x = month_yr, y = total_s
   theme_minimal() +
   theme(plot.title = element_text(hjust = 0.5))
 
-# compare all plots together - figure out how to fit all of this together
-plot_grid(lat_20_plot, lat_21_plot, lat_22_plot, lat_23_plot, lat_24_plot, lat_25_plot, lat_26_plot, lat_27_plot, lat_28_plot, lat_29_plot, nrow = 10, align = 'v', rel_heights = c(.1, .1, .1, .1, .1, .1, .1, .1, .1, .1))
+# compare all plots together
+lat_comparison_plot <- plot_grid(lat_20_plot, lat_21_plot, lat_22_plot, lat_23_plot, lat_24_plot, lat_25_plot, lat_26_plot, lat_27_plot, lat_28_plot, lat_29_plot, nrow = 10, align = 'v', rel_heights = c(.1, .1, .1, .1, .1, .1, .1, .1, .1, .1))
+save_plot("./Figures/lat_comparison_plot.pdf", lat_comparison_plot, base_height = 40, base_width = 20)
 
+# doing longs - counting 2 by 2
+long_80 <- gom_sightings %>% filter(longitude < -80 & longitude >= -82) # n = 3
+long_82 <- gom_sightings %>% filter(longitude < -82 & longitude >= -84) # n = 8
+long_84 <- gom_sightings %>% filter(longitude < -84 & longitude >= -86) # n = 1
+long_86 <- gom_sightings %>% filter(longitude < -86 & longitude >= -88) # n = 240
+long_88 <- gom_sightings %>% filter(longitude < -88 & longitude >= -90) # n = 8
+long_90 <- gom_sightings %>% filter(longitude < -90 & longitude >= -92) # n = 15
+long_92 <- gom_sightings %>% filter(longitude < -92 & longitude >= -94) # n = 3
+long_94 <- gom_sightings %>% filter(longitude < -94 & longitude >= -96) # n = 1
+long_96 <- gom_sightings %>% filter(longitude < -96 & longitude >= -98) # n = 2
+
+## set same date range for all using min/max of all lats. come back to make sure this is okay
+all_long_dates <- as.data.frame(seq(as.Date("2002-08-01"), as.Date("2009-12-01"), "months"))
+colnames(all_long_dates)[1] ="month_yr"
+
+## long 80
+
+#Select month/yr and total sightings from gom_sightings 
+long_80_sightings <- long_80 %>% select(month_yr, total_sightings)
+long_80_sightings <- distinct(long_80_sightings)
+
+#left join that to the new sequence of months and years
+long_80_sightings_all_months <- left_join(all_lat_dates, long_80_sightings, by ="month_yr")
+
+#Fill in all NAs as a total sighting of 0
+long_80_sightings_all_months[is.na(long_80_sightings_all_months)] <- 0
+
+long_80_plot <- ggplot(long_80_sightings_all_months, aes(x = month_yr, y = total_sightings)) +
+  geom_line() +
+  labs(x = "Date", y = "Total Monthly Sightings", title = "Total Monthly Sightings Between Long -80--82 of the Gulf of Mexico") +
+  theme_minimal() +
+  theme(plot.title = element_text(hjust = 0.5)) 
+
+## lat 21
+
+#Select month/yr and total sightings from gom_sightings 
+long_82_sightings <- long_82 %>% select(month_yr, total_sightings)
+long_82_sightings <- distinct(long_82_sightings)
+
+#left join that to the new sequence of months and years
+long_82_sightings_all_months <- left_join(all_lat_dates, long_82_sightings, by ="month_yr")
+
+#Fill in all NAs as a total sighting of 0
+long_82_sightings_all_months[is.na(long_82_sightings_all_months)] <- 0
+
+long_82_plot <- ggplot(long_82_sightings_all_months, aes(x = month_yr, y = total_sightings)) +
+  geom_line() +
+  labs(x = "Date", y = "Total Monthly Sightings", title = "Total Monthly Sightings Between Long -82--84 of the Gulf of Mexico") +
+  theme_minimal() +
+  theme(plot.title = element_text(hjust = 0.5)) 
+
+## long 84
+
+#Select month/yr and total sightings from gom_sightings 
+long_84_sightings <- long_84 %>% select(month_yr, total_sightings)
+long_84_sightings <- distinct(long_84_sightings)
+
+#left join that to the new sequence of months and years
+long_84_sightings_all_months <- left_join(all_lat_dates, long_84_sightings, by ="month_yr")
+
+#Fill in all NAs as a total sighting of 0
+long_84_sightings_all_months[is.na(long_84_sightings_all_months)] <- 0
+
+long_84_plot <- ggplot(long_84_sightings_all_months, aes(x = month_yr, y = total_sightings)) +
+  geom_line() +
+  labs(x = "Date", y = "Total Monthly Sightings", title = "Total Monthly Sightings Between Long -84--86 of the Gulf of Mexico") +
+  theme_minimal() +
+  theme(plot.title = element_text(hjust = 0.5)) 
+
+## long 86
+
+#Select month/yr and total sightings from gom_sightings 
+long_86_sightings <- long_86 %>% select(month_yr, total_sightings)
+long_86_sightings <- distinct(long_86_sightings)
+
+#left join that to the new sequence of months and years
+long_86_sightings_all_months <- left_join(all_lat_dates, long_86_sightings, by ="month_yr")
+
+#Fill in all NAs as a total sighting of 0
+long_86_sightings_all_months[is.na(long_86_sightings_all_months)] <- 0
+
+long_86_plot <- ggplot(long_86_sightings_all_months, aes(x = month_yr, y = total_sightings)) +
+  geom_line() +
+  labs(x = "Date", y = "Total Monthly Sightings", title = "Total Monthly Sightings Between Long -86--88 of the Gulf of Mexico") +
+  theme_minimal() +
+  theme(plot.title = element_text(hjust = 0.5))
+
+## long 88
+
+#Select month/yr and total sightings from gom_sightings 
+long_88_sightings <- long_88 %>% select(month_yr, total_sightings)
+long_88_sightings <- distinct(long_88_sightings)
+
+#left join that to the new sequence of months and years
+long_88_sightings_all_months <- left_join(all_lat_dates, long_88_sightings, by ="month_yr")
+
+#Fill in all NAs as a total sighting of 0
+long_88_sightings_all_months[is.na(long_88_sightings_all_months)] <- 0
+
+long_88_plot <- ggplot(long_88_sightings_all_months, aes(x = month_yr, y = total_sightings)) +
+  geom_line() +
+  labs(x = "Date", y = "Total Monthly Sightings", title = "Total Monthly Sightings Between Long -88--90 of the Gulf of Mexico") +
+  theme_minimal() +
+  theme(plot.title = element_text(hjust = 0.5)) 
+
+## long 90
+
+#Select month/yr and total sightings from gom_sightings 
+long_90_sightings <- long_90 %>% select(month_yr, total_sightings)
+long_90_sightings <- distinct(long_90_sightings)
+
+#left join that to the new sequence of months and years
+long_90_sightings_all_months <- left_join(all_lat_dates, long_90_sightings, by ="month_yr")
+
+#Fill in all NAs as a total sighting of 0
+long_90_sightings_all_months[is.na(long_90_sightings_all_months)] <- 0
+
+long_90_plot <- ggplot(long_90_sightings_all_months, aes(x = month_yr, y = total_sightings)) +
+  geom_line() +
+  labs(x = "Date", y = "Total Monthly Sightings", title = "Total Monthly Sightings Between Long -90--92 of the Gulf of Mexico") +
+  theme_minimal() +
+  theme(plot.title = element_text(hjust = 0.5)) 
+
+## long 92
+
+#Select month/yr and total sightings from gom_sightings 
+long_92_sightings <- long_92 %>% select(month_yr, total_sightings)
+long_92_sightings <- distinct(long_92_sightings)
+
+#left join that to the new sequence of months and years
+long_92_sightings_all_months <- left_join(all_lat_dates, long_92_sightings, by ="month_yr")
+
+#Fill in all NAs as a total sighting of 0
+long_92_sightings_all_months[is.na(long_92_sightings_all_months)] <- 0
+
+long_92_plot <- ggplot(long_92_sightings_all_months, aes(x = month_yr, y = total_sightings)) +
+  geom_line() +
+  labs(x = "Date", y = "Total Monthly Sightings", title = "Total Monthly Sightings Between Long -92--94 of the Gulf of Mexico") +
+  theme_minimal() +
+  theme(plot.title = element_text(hjust = 0.5)) 
+
+## long 94
+
+#Select month/yr and total sightings from gom_sightings 
+long_94_sightings <- long_94 %>% select(month_yr, total_sightings)
+long_94_sightings <- distinct(long_94_sightings)
+
+#left join that to the new sequence of months and years
+long_94_sightings_all_months <- left_join(all_lat_dates, long_94_sightings, by ="month_yr")
+
+#Fill in all NAs as a total sighting of 0
+long_94_sightings_all_months[is.na(long_94_sightings_all_months)] <- 0
+
+long_94_plot <- ggplot(long_94_sightings_all_months, aes(x = month_yr, y = total_sightings)) +
+  geom_line() +
+  labs(x = "Date", y = "Total Monthly Sightings", title = "Total Monthly Sightings Between Long -94--96 of the Gulf of Mexico") +
+  theme_minimal() +
+  theme(plot.title = element_text(hjust = 0.5))
+
+## long 96
+
+#Select month/yr and total sightings from gom_sightings 
+long_96_sightings <- long_96 %>% select(month_yr, total_sightings)
+long_96_sightings <- distinct(long_96_sightings)
+
+#left join that to the new sequence of months and years
+long_96_sightings_all_months <- left_join(all_lat_dates, long_96_sightings, by ="month_yr")
+
+#Fill in all NAs as a total sighting of 0
+long_96_sightings_all_months[is.na(long_96_sightings_all_months)] <- 0
+
+long_96_plot <- ggplot(long_96_sightings_all_months, aes(x = month_yr, y = total_sightings)) +
+  geom_line() +
+  labs(x = "Date", y = "Total Monthly Sightings", title = "Total Monthly Sightings Between Long -96--98 of the Gulf of Mexico") +
+  theme_minimal() +
+  theme(plot.title = element_text(hjust = 0.5))
+
+# compare all plots together
+long_comparison_plot <- plot_grid(long_80_plot, long_82_plot, long_84_plot, long_86_plot, long_88_plot, long_90_plot, long_92_plot, long_94_plot, long_96_plot, nrow = 9, align = 'v', rel_heights = c(.1, .1, .1, .1, .1, .1, .1, .1, .1))
+save_plot("./Figures/long_comparison_plot.pdf", long_comparison_plot, base_height = 40, base_width = 20)
