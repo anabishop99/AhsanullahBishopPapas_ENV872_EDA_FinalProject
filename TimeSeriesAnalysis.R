@@ -5,6 +5,8 @@ library(zoo)
 library(tseries)
 library(dplyr)
 library(cowplot)
+library(trend)
+library(Kendall)
 
 #read in data
 gom_sightings <- read_csv("./Data/whaleshark_data/cleaned_gom_data.csv")
@@ -521,3 +523,56 @@ long_96_plot <- ggplot(long_96_sightings_all_months, aes(x = month_yr, y = total
 # compare all plots together
 long_comparison_plot <- plot_grid(long_80_plot, long_82_plot, long_84_plot, long_86_plot, long_88_plot, long_90_plot, long_92_plot, long_94_plot, long_96_plot, nrow = 9, align = 'v', rel_heights = c(.1, .1, .1, .1, .1, .1, .1, .1, .1))
 save_plot("./Figures/long_comparison_plot.pdf", long_comparison_plot, base_height = 40, base_width = 20)
+
+##### Next Analysis - test for increasing trend over all time. Need to take out seasonality ####
+# set time series object
+gom_ts <- ts(sightings_all_months$total_sightings, start = c(2002,8), frequency = 12)
+
+# decompose time series
+gom_ts_decomposed <- stl(gom_ts, s.window = "periodic")
+
+plot(gom_ts_decomposed)
+
+# run monotonic trend analysis - seasonal Mann Kendall ##### NOTE! This had too few observations to be valid. I'll do it by year instead
+gom_sighting_analysis <- Kendall::SeasonalMannKendall(gom_ts)
+
+#show results
+gom_sighting_analysis
+summary(gom_sighting_analysis)
+
+### new attempt, grouping by year
+gom_yearly_sightings <- gom_sightings %>% group_by(year) %>% mutate(total_sightings = n())
+
+# all years are already filled in
+
+#Select month/yr and total sightings from gom_sightings 
+yearly_sightings <- gom_yearly_sightings %>% select(year, total_sightings)
+yearly_sightings <- distinct(yearly_sightings)
+
+#initial timeseries
+ggplot(yearly_sightings, aes(x = year, y = total_sightings)) +
+  geom_line() +
+  labs(x = "Date", y = "Total Yearly Sightings", title = "Total Yearly Sightings in the Gulf of Mexico") +
+  theme_minimal() +
+  theme(plot.title = element_text(hjust = 0.5)) 
+
+# set time series object
+gom_yearly_ts <- ts(yearly_sightings$total_sightings, start = c(2002), frequency = 1)
+
+# decompose time series
+gom_yearly_ts_decomposed <- stl(gom_yearly_ts, s.window = "8") # no arguments worked here: "Error in stl(gom_yearly_ts, s.window = "8") : series is not periodic or has less than two periods""
+
+plot(gom_yearly_ts_decomposed) #won't work bc of previous error
+
+# run monotonic trend analysis -  Mann Kendall and lm ##### NOTE! This had too few observations to be valid. I'll do it by year instead
+gom_yearly_sighting_analysis_mk <- Kendall::MannKendall(gom_yearly_ts)
+gom_yearly_sighting_analysis_lm <- lm(year ~ total_sightings, data = yearly_sightings)
+
+#show results
+gom_yearly_sighting_analysis_mk
+summary(gom_yearly_sighting_analysis_mk)
+
+gom_yearly_sighting_analysis_lm
+summary(gom_yearly_sighting_analysis_lm)
+
+
