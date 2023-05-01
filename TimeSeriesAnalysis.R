@@ -560,7 +560,7 @@ ggplot(yearly_sightings, aes(x = year, y = total_sightings)) +
 gom_yearly_ts <- ts(yearly_sightings$total_sightings, start = c(2002), frequency = 1)
 
 # decompose time series
-gom_yearly_ts_decomposed <- stl(gom_yearly_ts, s.window = "8") # no arguments worked here: "Error in stl(gom_yearly_ts, s.window = "8") : series is not periodic or has less than two periods""
+gom_yearly_ts_decomposed <- stl(gom_yearly_ts) # fixed - rerun
 
 plot(gom_yearly_ts_decomposed) #won't work bc of previous error
 
@@ -575,4 +575,5 @@ summary(gom_yearly_sighting_analysis_mk)
 gom_yearly_sighting_analysis_lm
 summary(gom_yearly_sighting_analysis_lm)
 
+## aggregate by high sighting months only then do a mann-kendall - NOT SEASONAL - on that!
 
