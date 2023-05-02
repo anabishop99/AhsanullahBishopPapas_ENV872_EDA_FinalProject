@@ -577,3 +577,39 @@ summary(gom_yearly_sighting_analysis_lm)
 
 ## aggregate by high sighting months only then do a mann-kendall - NOT SEASONAL - on that!
 
+# analysis on only June-Sept
+summer_fall <- gom_sightings %>% filter(month %in% 6:9)
+summer_fall_sightings <- summer_fall %>% select(month_yr, total_sightings)
+summer_fall_sightings <- distinct(summer_fall_sightings)
+
+# generate missing values
+summer_fall_dates <- as.data.frame(seq(as.Date("2002-08-01"), as.Date("2009-12-01"), "months"))
+colnames(summer_fall_dates)[1] ="month_yr"
+summer_fall_dates <- summer_fall_dates %>% filter(month(month_yr) %in% 6:9)
+
+#left join that to the new sequence of months and years
+summer_fall_sightings <- left_join(summer_fall_dates, summer_fall_sightings, by ="month_yr")
+
+#Fill in all NAs as a total sighting of 0
+summer_fall_sightings[is.na(summer_fall_sightings)] <- 0
+
+summer_fall_plot <- ggplot(summer_fall_sightings, aes(x = month_yr, y = total_sightings)) +
+  geom_line() +
+  labs(x = "Date", y = "Total Monthly Sightings", title = "Total Monthly Sightings from June through September") +
+  theme_minimal() +
+  theme(plot.title = element_text(hjust = 0.5))
+
+# set time series object
+summer_fall_ts <- ts(summer_fall_sightings$total_sightings, start = c(2002), frequency = 1)
+
+# decompose time series
+summer_fall_ts_decomposed <- stl(summer_fall_ts) # idk what's going on - no seasonality though
+
+plot(gom_yearly_ts_decomposed) #won't work bc of previous error
+
+# run monotonic trend analysis -  Mann Kendall
+summer_fall_analysis_mk <- Kendall::MannKendall(summer_fall_ts)
+
+#show results
+summer_fall_analysis_mk # significant!
+summary(gom_yearly_sighting_analysis_mk)
