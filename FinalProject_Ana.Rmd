@@ -56,7 +56,7 @@ sightings_all_months[is.na(sightings_all_months)] <- 0
 #initial timeseries
 ggplot(sightings_all_months, aes(x = month_yr, y = total_sightings)) +
   geom_line() +
-  labs(x = "Date", y = "Total Monthly Sightings", title = "Total Monthly Sightings in the Gulf of Mexico Over Time") +
+  labs(x = "Date", y = "Total Monthly Sightings", title = "Total Monthly Sightings in the Gulf of Mexico From 2002-2009") +
   theme_minimal() +
   theme(plot.title = element_text(hjust = 0.5)) 
 ```
@@ -190,7 +190,7 @@ lat_20_sightings_all_months[is.na(lat_20_sightings_all_months)] <- 0
 
 lat_20_plot <- ggplot(lat_20_sightings_all_months, aes(x = month_yr, y = total_sightings)) +
   geom_line() +
-  labs(x = "Date", y = "Total Monthly Sightings", title = "Total Monthly Sightings Between Lat 20-21 of the Gulf of Mexico") +
+  labs(x = "Date", y = "Total Monthly Sightings", title = expression("Total Monthly Sightings Between 20°N and 21°N")) +
   theme_minimal() +
   theme(plot.title = element_text(hjust = 0.5)) 
 
@@ -208,7 +208,7 @@ lat_21_sightings_all_months[is.na(lat_21_sightings_all_months)] <- 0
 
 lat_21_plot <- ggplot(lat_21_sightings_all_months, aes(x = month_yr, y = total_sightings)) +
   geom_line() +
-  labs(x = "Date", y = "Total Monthly Sightings", title = "Total Monthly Sightings Between Lat 21-22 of the Gulf of Mexico") +
+  labs(x = "Date", y = "Total Monthly Sightings", title = "Total Monthly Sightings Between 21°N and 22°N") +
   theme_minimal() +
   theme(plot.title = element_text(hjust = 0.5)) 
 
@@ -226,7 +226,7 @@ lat_22_sightings_all_months[is.na(lat_22_sightings_all_months)] <- 0
 
 lat_22_plot <- ggplot(lat_22_sightings_all_months, aes(x = month_yr, y = total_sightings)) +
   geom_line() +
-  labs(x = "Date", y = "Total Monthly Sightings", title = "Total Monthly Sightings Between Lat 22-23 of the Gulf of Mexico") +
+  labs(x = "Date", y = "Total Monthly Sightings", title = "Total Monthly Sightings Between 22°N and 23°N") +
   theme_minimal() +
   theme(plot.title = element_text(hjust = 0.5)) 
 
@@ -244,7 +244,7 @@ lat_23_sightings_all_months[is.na(lat_23_sightings_all_months)] <- 0
 
 lat_23_plot <- ggplot(lat_23_sightings_all_months, aes(x = month_yr, y = total_sightings)) +
   geom_line() +
-  labs(x = "Date", y = "Total Monthly Sightings", title = "Total Monthly Sightings Between Lat 23-24 of the Gulf of Mexico") +
+  labs(x = "Date", y = "Total Monthly Sightings", title = "Total Monthly Sightings Between 23°N and 24°N") +
   theme_minimal() +
   theme(plot.title = element_text(hjust = 0.5))
 
@@ -262,7 +262,7 @@ lat_24_sightings_all_months[is.na(lat_24_sightings_all_months)] <- 0
 
 lat_24_plot <- ggplot(lat_24_sightings_all_months, aes(x = month_yr, y = total_sightings)) +
   geom_line() +
-  labs(x = "Date", y = "Total Monthly Sightings", title = "Total Monthly Sightings Between Lat 24-25 of the Gulf of Mexico") +
+  labs(x = "Date", y = "Total Monthly Sightings", title = "Total Monthly Sightings Between 24°N and 25°N") +
   theme_minimal() +
   theme(plot.title = element_text(hjust = 0.5)) 
 
@@ -280,7 +280,7 @@ lat_25_sightings_all_months[is.na(lat_25_sightings_all_months)] <- 0
 
 lat_25_plot <- ggplot(lat_25_sightings_all_months, aes(x = month_yr, y = total_sightings)) +
   geom_line() +
-  labs(x = "Date", y = "Total Monthly Sightings", title = "Total Monthly Sightings Between Lat 25-26 of the Gulf of Mexico") +
+  labs(x = "Date", y = "Total Monthly Sightings", title = "Total Monthly Sightings Between 25°N and 26°N") +
   theme_minimal() +
   theme(plot.title = element_text(hjust = 0.5)) 
 
@@ -298,7 +298,7 @@ lat_26_sightings_all_months[is.na(lat_26_sightings_all_months)] <- 0
 
 lat_26_plot <- ggplot(lat_26_sightings_all_months, aes(x = month_yr, y = total_sightings)) +
   geom_line() +
-  labs(x = "Date", y = "Total Monthly Sightings", title = "Total Monthly Sightings Between Lat 26-27 of the Gulf of Mexico") +
+  labs(x = "Date", y = "Total Monthly Sightings", title = "Total Monthly Sightings Between 26°N and 27°N") +
   theme_minimal() +
   theme(plot.title = element_text(hjust = 0.5)) 
 
@@ -316,7 +316,7 @@ lat_27_sightings_all_months[is.na(lat_27_sightings_all_months)] <- 0
 
 lat_27_plot <- ggplot(lat_27_sightings_all_months, aes(x = month_yr, y = total_sightings)) +
   geom_line() +
-  labs(x = "Date", y = "Total Monthly Sightings", title = "Total Monthly Sightings Between Lat 27-28 of the Gulf of Mexico") +
+  labs(x = "Date", y = "Total Monthly Sightings", title = "Total Monthly Sightings Between 27°N and 28°N") +
   theme_minimal() +
   theme(plot.title = element_text(hjust = 0.5))
 
@@ -334,7 +334,7 @@ lat_28_sightings_all_months[is.na(lat_28_sightings_all_months)] <- 0
 
 lat_28_plot <- ggplot(lat_28_sightings_all_months, aes(x = month_yr, y = total_sightings)) +
   geom_line() +
-  labs(x = "Date", y = "Total Monthly Sightings", title = "Total Monthly Sightings Between Lat 28-29 of the Gulf of Mexico") +
+  labs(x = "Date", y = "Total Monthly Sightings", title = "Total Monthly Sightings Between 28°N and 29°N") +
   theme_minimal() +
   theme(plot.title = element_text(hjust = 0.5))
 
@@ -352,15 +352,14 @@ lat_29_sightings_all_months[is.na(lat_29_sightings_all_months)] <- 0
 
 lat_29_plot <- ggplot(lat_29_sightings_all_months, aes(x = month_yr, y = total_sightings)) +
   geom_line() +
-  labs(x = "Date", y = "Total Monthly Sightings", title = "Total Monthly Sightings Between Lat 29-30 of the Gulf of Mexico") +
+  labs(x = "Date", y = "Total Monthly Sightings", title = "Total Monthly Sightings Between 29°N and 30°N") +
   theme_minimal() +
   theme(plot.title = element_text(hjust = 0.5))
 ```
 
-```{r comparison lat plot, fig.height= 40, fig.width= 30}
+```{r comparison lat plot, fig.height= 20, fig.width= 10}
 # compare all plots together
 lat_comparison_plot <- plot_grid(lat_20_plot, lat_21_plot, lat_22_plot, lat_23_plot, lat_24_plot, lat_25_plot, lat_26_plot, lat_27_plot, lat_28_plot, lat_29_plot, nrow = 10, align = 'v', rel_heights = c(.1, .1, .1, .1, .1, .1, .1, .1, .1, .1))
-save_plot("./Figures/lat_comparison_plot.pdf", lat_comparison_plot, base_height = 40, base_width = 20)
 print(lat_comparison_plot)
 ```
 
@@ -394,7 +393,7 @@ long_80_sightings_all_months[is.na(long_80_sightings_all_months)] <- 0
 
 long_80_plot <- ggplot(long_80_sightings_all_months, aes(x = month_yr, y = total_sightings)) +
   geom_line() +
-  labs(x = "Date", y = "Total Monthly Sightings", title = "Total Monthly Sightings Between Long -80--82 of the Gulf of Mexico") +
+  labs(x = "Date", y = "Total Monthly Sightings", title = "Total Monthly Sightings Between 80°W and 82°W") +
   theme_minimal() +
   theme(plot.title = element_text(hjust = 0.5)) 
 
@@ -412,7 +411,7 @@ long_82_sightings_all_months[is.na(long_82_sightings_all_months)] <- 0
 
 long_82_plot <- ggplot(long_82_sightings_all_months, aes(x = month_yr, y = total_sightings)) +
   geom_line() +
-  labs(x = "Date", y = "Total Monthly Sightings", title = "Total Monthly Sightings Between Long -82--84 of the Gulf of Mexico") +
+  labs(x = "Date", y = "Total Monthly Sightings", title = "Total Monthly Sightings Between 82°W and 84°W") +
   theme_minimal() +
   theme(plot.title = element_text(hjust = 0.5)) 
 
@@ -430,7 +429,7 @@ long_84_sightings_all_months[is.na(long_84_sightings_all_months)] <- 0
 
 long_84_plot <- ggplot(long_84_sightings_all_months, aes(x = month_yr, y = total_sightings)) +
   geom_line() +
-  labs(x = "Date", y = "Total Monthly Sightings", title = "Total Monthly Sightings Between Long -84--86 of the Gulf of Mexico") +
+  labs(x = "Date", y = "Total Monthly Sightings", title = "Total Monthly Sightings Between 84°W and 86°W") +
   theme_minimal() +
   theme(plot.title = element_text(hjust = 0.5)) 
 
@@ -448,7 +447,7 @@ long_86_sightings_all_months[is.na(long_86_sightings_all_months)] <- 0
 
 long_86_plot <- ggplot(long_86_sightings_all_months, aes(x = month_yr, y = total_sightings)) +
   geom_line() +
-  labs(x = "Date", y = "Total Monthly Sightings", title = "Total Monthly Sightings Between Long -86--88 of the Gulf of Mexico") +
+  labs(x = "Date", y = "Total Monthly Sightings", title = "Total Monthly Sightings Between 86°W and 88°W") +
   theme_minimal() +
   theme(plot.title = element_text(hjust = 0.5))
 
@@ -466,7 +465,7 @@ long_88_sightings_all_months[is.na(long_88_sightings_all_months)] <- 0
 
 long_88_plot <- ggplot(long_88_sightings_all_months, aes(x = month_yr, y = total_sightings)) +
   geom_line() +
-  labs(x = "Date", y = "Total Monthly Sightings", title = "Total Monthly Sightings Between Long -88--90 of the Gulf of Mexico") +
+  labs(x = "Date", y = "Total Monthly Sightings", title = "Total Monthly Sightings Between 88°W and 90°W") +
   theme_minimal() +
   theme(plot.title = element_text(hjust = 0.5)) 
 
@@ -484,7 +483,7 @@ long_90_sightings_all_months[is.na(long_90_sightings_all_months)] <- 0
 
 long_90_plot <- ggplot(long_90_sightings_all_months, aes(x = month_yr, y = total_sightings)) +
   geom_line() +
-  labs(x = "Date", y = "Total Monthly Sightings", title = "Total Monthly Sightings Between Long -90--92 of the Gulf of Mexico") +
+  labs(x = "Date", y = "Total Monthly Sightings", title = "Total Monthly Sightings Between 90°W and 92°W") +
   theme_minimal() +
   theme(plot.title = element_text(hjust = 0.5)) 
 
@@ -502,7 +501,7 @@ long_92_sightings_all_months[is.na(long_92_sightings_all_months)] <- 0
 
 long_92_plot <- ggplot(long_92_sightings_all_months, aes(x = month_yr, y = total_sightings)) +
   geom_line() +
-  labs(x = "Date", y = "Total Monthly Sightings", title = "Total Monthly Sightings Between Long -92--94 of the Gulf of Mexico") +
+  labs(x = "Date", y = "Total Monthly Sightings", title = "Total Monthly Sightings Between 92°W and 94°W") +
   theme_minimal() +
   theme(plot.title = element_text(hjust = 0.5)) 
 
@@ -520,7 +519,7 @@ long_94_sightings_all_months[is.na(long_94_sightings_all_months)] <- 0
 
 long_94_plot <- ggplot(long_94_sightings_all_months, aes(x = month_yr, y = total_sightings)) +
   geom_line() +
-  labs(x = "Date", y = "Total Monthly Sightings", title = "Total Monthly Sightings Between Long -94--96 of the Gulf of Mexico") +
+  labs(x = "Date", y = "Total Monthly Sightings", title = "Total Monthly Sightings Between 94°W and 96°W") +
   theme_minimal() +
   theme(plot.title = element_text(hjust = 0.5))
 
@@ -538,15 +537,14 @@ long_96_sightings_all_months[is.na(long_96_sightings_all_months)] <- 0
 
 long_96_plot <- ggplot(long_96_sightings_all_months, aes(x = month_yr, y = total_sightings)) +
   geom_line() +
-  labs(x = "Date", y = "Total Monthly Sightings", title = "Total Monthly Sightings Between Long -96--98 of the Gulf of Mexico") +
+  labs(x = "Date", y = "Total Monthly Sightings", title = "Total Monthly Sightings Between 96°W and 98°W") +
   theme_minimal() +
   theme(plot.title = element_text(hjust = 0.5))
 ```
 
-```{r individual long plot comparison, fig.height= 40, fig.width= 30}
+```{r individual long plot comparison, fig.height= 20, fig.width= 10}
 # compare all plots together
 long_comparison_plot <- plot_grid(long_80_plot, long_82_plot, long_84_plot, long_86_plot, long_88_plot, long_90_plot, long_92_plot, long_94_plot, long_96_plot, nrow = 9, align = 'v', rel_heights = c(.1, .1, .1, .1, .1, .1, .1, .1, .1))
-save_plot("./Figures/long_comparison_plot.pdf", long_comparison_plot, base_height = 40, base_width = 20)
 print(long_comparison_plot)
 ```
 
