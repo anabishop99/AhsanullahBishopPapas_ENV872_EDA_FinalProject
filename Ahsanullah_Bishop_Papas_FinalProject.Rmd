@@ -628,9 +628,11 @@ gom_final<- gom_clean %>%
 ```
 
 ## Exploratory Analysis
-Upon beginning the analysis, our main questions were these: has the abundance of whale sharks in the Gulf of Mexico changed over time? If so, did they change in relation to warming sea surface temperatures (SST)? To find out, we first visualized the total sightings of whale sharks in the Gulf of Mexico across our entire study period (2002-2009; Figure XX). This visualization confirmed that a large increase in whale shark abundance appeared to occur after 2008, which gave us the confidence to proceed with our analysis. We then investigated how SST had changed in the Gulf over the course of our study period to confirm that the water temperature had indeed changed (Figure XX). Upon seeing that it had (check this!!), we knew that there was merit to our investigation, and proceeded to look at more nuanced questions within our study.
+Upon beginning the analysis, our main questions were these: has the abundance of whale sharks in the Gulf of Mexico changed over time? If so, did they change in relation to warming sea surface temperatures (SST)? To find out, we first visualized the total sightings of whale sharks in the Gulf of Mexico across our entire study period (2002-2009; Figure 1). This visualization confirmed that a large increase in whale shark abundance appeared to occur after 2008, which gave us the confidence to proceed with our analysis. We then investigated how SST had changed in the Gulf over the course of our study period to confirm that the water temperature had indeed changed (Figure 2). Upon seeing that it had, we knew that there was merit to our investigation, and proceeded to look at more nuanced questions within our study.
 
-After seeing that there appeared to be an overall increase in whale shark abundance, we were curious to see if whale shark abundances had changed within the Gulf of Mexico. Was it possible that the warming waters were causing them to potentially migrate to the Gulf in larger numbers? If so, could the changing water have any impact on which region of the Gulf that they favored? We divided the study area into northern and southern halves, along with eastern and western halves, to see if there appeared to be any sort of trade off between the regions over time (Figure XX). The results showed that there was no clear trade off that could be seen. Instead, it appeared that abundance generally increased across all four regions over time. As one last attempt to view any sort of habitat usage trade off, we then compared the abundance of whale sharks over the study period between each latitude parallel of the Gulf of Mexico (Figure XX), along with their abundance between every two longitute parallels (Figure XX). Again, there was no distinct trade off in usage seen; instead, it again appeared that the whale shark abundance simply increased overall in almost every area. This confired that we should not conduct an analysis to see if habitat preferences had changed, and instead simply focus on whether the number of sighted whale sharks had significantly increased over time or not. 
+After seeing that there appeared to be an overall increase in whale shark abundance, we were curious to see if whale shark abundances had changed within the Gulf of Mexico. Was it possible that the warming waters were causing them to potentially migrate to the Gulf in larger numbers? If so, could the changing water have any impact on which region of the Gulf that they favored? We divided the study area into northern and southern halves, along with eastern and western halves, to see if there appeared to be any sort of trade off between the regions over time (Figure 3). The results showed that there was no clear trade off that could be seen. Instead, it appeared that abundance generally increased across all four regions over time. As one last attempt to view any sort of habitat usage trade off, we then compared the abundance of whale sharks over the study period between each latitude parallel of the Gulf of Mexico (Figure 4), along with their abundance between every two longitude parallels (Figure 5). Again, there was no distinct trade off in usage seen; instead, it again appeared that the whale shark abundance simply increased overall in almost every area. This confirmed that we should not conduct an analysis to see if habitat preferences had changed, and instead simply focus on whether the number of sighted whale sharks had significantly increased over time or not. 
+
+To visualize exactly where the sharks were sighted in the Gulf, we created a map for reference (Figure 6).
 
 ``` {r time series plot}
 #initial timeseries
@@ -658,7 +660,7 @@ sst.plot <-
 print(sst.plot)
 ```
 
-Figure 2 shows that sea surface temperature anomaly is increasing slightly over time.
+Figure 2 shows that the number sea surface temperature anomalies is increasing slightly over time.
 
 <br>
 
@@ -677,7 +679,7 @@ lat_comparison_plot <- plot_grid(lat_20_plot, lat_21_plot, lat_22_plot, lat_23_p
 print(lat_comparison_plot)
 ```
 
-Figure 4. A comparison of whale shark sightings within each latitude parallel of the Gulf of Mexcio.
+Figure 4. A comparison of whale shark sightings within each latitude parallel of the Gulf of Mexico.
 
 <br> 
 
@@ -688,6 +690,8 @@ print(long_comparison_plot)
 ```
 
 Figure 5. A comparison of whale shark sightings within every two longitude parallels of the Gulf of Mexico.
+
+<br>
 
 ```{r}
 gom_sf<-st_as_sf(gom_final, coords = c("longitude","latitude"), crs=4326)
@@ -741,7 +745,7 @@ summary(gom_sighting_analysis)
 plot(gom_ts_decomposed)
 ```
 
-The increasing trend of monthly sightings in the Gulf of Mexico was significant (tau = 0.32, p = 0.002). However, there were not enough sightings per month for the analysis to be valid. Therefore, I aggregated the sightings by year instead and analyzed the time series again.
+The increasing trend of monthly sightings in the Gulf of Mexico was significant (tau = 0.32, p = 0.002). However, there were not enough sightings per month for the analysis to be valid. Therefore, I aggregated the sightings by year instead and analyzed the time series again (Figure 8, Figure 9).
 
 ```{r yearly time series, echo=FALSE, include=FALSE, message=FALSE, warning=FALSE}
 ### new attempt, grouping by year
@@ -777,13 +781,21 @@ summary(gom_yearly_sighting_analysis_lm)
 #initial timeseries
 ggplot(yearly_sightings, aes(x = year, y = total_sightings)) +
   geom_line() +
-  labs(x = "Date", y = "Total Yearly Sightings", title = "Total Yearly Sightings in the Gulf of Mexico", caption = "Fig. 8. Total sightings in the Gulf of Mexico for the entire study period, aggregated by year") +
+  labs(x = "Date", y = "Total Yearly Sightings", title = "Total Yearly Sightings in the Gulf of Mexico", caption = "Figure. 8. Total sightings in the Gulf of Mexico for the entire study period, aggregated by year") +
   theme_minimal() +
   theme(plot.title = element_text(hjust = 0.5)) +
   theme(plot.caption = element_text(hjust = 0))
 ```
 
-The results of this analysis did not show that there was an increasing trend using a Mann-Kendall analysis (tau = 0.43, p = 0.17). However, we conducted a linear regression analysis on the data as well, and that test did return positive results (p = 0.04). However, due to the conflicting results of the tests and the p value from the linear regression still being rather large, we felt that a third analysis could improve the strength of our conclusions. Therefore, we isolated the months in which whale sharks were the most frequently seen (June - September; Figure 8), and performed a final Mann-Kendall analysis on those months. The results showed that there was a significant increase in sightings over those "hot spot" months over time (tau = 0.38, p = 0.004).
+
+```{r}
+mapview(gom_final, zcol= "year")
+```
+Figure 9. Whale Shark Data by Year
+
+The results of this analysis did not show that there was an increasing trend using a Mann-Kendall analysis (tau = 0.43, p = 0.17). However, we conducted a linear regression analysis on the data as well, and that test did return positive results (p = 0.04). However, due to the conflicting results of the tests and the p value from the linear regression still being rather large, we felt that a third analysis could improve the strength of our conclusions. Therefore, we isolated the months in which whale sharks were the most frequently seen (June - September; Figure 10; Figures 11A-D), and performed a final Mann-Kendall analysis on those months. The results showed that there was a significant increase in sightings over those "hot spot" months over time (tau = 0.38, p = 0.004).
+
+We also decided that mapping the whale shark abundance by year was not the most effective way to observe the data as there were too many years that had too little observations or only had observations for a single month. 
 
 ```{r seasonal time series, echo=FALSE, include=FALSE, message=FALSE, warning=FALSE}
 ## aggregate by high sighting months only then do a mann-kendall - NOT SEASONAL - on that!
@@ -819,7 +831,7 @@ summer_fall_analysis_mk <- Kendall::MannKendall(summer_fall_ts)
 summer_fall_analysis_mk # significant!
 ```
 
-```{r, fig.cap="Fig. 9. Time series of whale shark sightings over the months in which whale sharks were most frequently spotted (June-September)"}
+```{r, fig.cap="Figure 10. Time series of whale shark sightings over the months in which whale sharks were most frequently spotted (June-September)"}
 ggplot(summer_fall_sightings, aes(x = month_yr, y = total_sightings)) +
   geom_line() +
   labs(x = "Date", y = "Total Monthly Sightings", title = "Total Monthly Sightings from June through September") +
@@ -827,7 +839,7 @@ ggplot(summer_fall_sightings, aes(x = month_yr, y = total_sightings)) +
   theme(plot.title = element_text(hjust = 0.5))
 ```
 
-Map of Monthly Hotspots
+Figures 11A-D. Map of Monthly Hotspots
 ```{r}
 #monthly data
 monthly<- gom_final %>% 
@@ -851,13 +863,10 @@ monthly2004<- monthly %>%
   filter(year==2004)
 mapview(monthly2004, zcol= "month")
 ```
-Caption: We decided mapping the whale shark abundance by year was not the most effective way to observe the data as there were too many years that had too little observations or only had observations for a single month. 
 
-Whale Shark data by Year
-```{r}
-mapview(gom_final, zcol= "year")
-```
-Caption: We encourage you to zoom in to the tip of the Yucatan Penninsula to better observe the abundance of whale sharks in this region. As you can see, there seems to be more whale sharks moving south towards the equator during 2009. 
+We encourage you to zoom in to the tip of the Yucatan Penninsula to better observe the abundance of whale sharks in this region. As you can see, there seems to be more whale sharks moving south towards the equator during 2009. 
+
+Figures 12A-D. Observations in Each Hot Spot Month by Year
 
 Observations in June By Year
 ```{r}
@@ -889,7 +898,7 @@ mapview(september, zcol= "year")
 
 ### Sea Surface Temperature vs. Whale Shark Sightings
 
-```{r sst.whale, echo=FALSE, message=FALSE, warning=FALSE, fig.cap="Figure 9. Sea Surface Temperature vs. Whale Shark Sightings"}
+```{r sst.whale, echo=FALSE, message=FALSE, warning=FALSE, fig.cap="Figure 13. Sea Surface Temperature vs. Whale Shark Sightings"}
 #plot of whale shark sightings by sea surface temperature anomalies
 combined.plot <-
   ggplot(combined_clean, aes(x=Anomaly,y=total_sightings))+
@@ -904,7 +913,7 @@ combined.plot <-
 print(combined.plot)
 ```
 
-Figure 9 shows that there is an increase in whale shark sightings as sea surface temperature anomaly increases. To analyze this increase we used a GLM. The results of the GLM showed that this increase is not significant (p-value = 0.4093, DF=36, R-squared= 0.019).
+Figure 13 shows that there is an increase in whale shark sightings as sea surface temperature anomaly increases. To analyze this increase we used a GLM. The results of the GLM showed that this increase is not significant (p-value = 0.4093, DF=36, R-squared= 0.019).
 
 ```{r lm, echo=FALSE, include=FALSE, message=FALSE, warning=FALSE}
 #linear regression of whale shark sightings by sst
@@ -914,8 +923,8 @@ summary(combined.regression)
 
 ## Summary
 
-Overall, there was a significant increase in whale shark sightings overtime throughout the study area. While this could be an encouraging result that may indicate the whale shark population might be growing, and/or may be using the Gulf of Mexico in higher numbers, there are other confounding variables at play. Given the opportunistic nature of this dataset, it's possible that there simply may have been more people looking for whale sharks in the later years of the study period. This could be because the whales were in a more favorable environment, or maybe the public was better educated about how to submit sightings to the database managers. In summary, while there was a signficiant increasing trend in sightings over the years, we cannot be sure about how or why that occurred. Conducting systematic surveys looking for whale sharks within the Gulf that have a standardized methodology in the future could help give more confidence in the findings of this analysis, and indicate if there actually are more whales visiting the Gulf of Mexico.
+Overall, there was a significant increase in whale shark sightings overtime throughout the study area. While this could be an encouraging result that may indicate the whale shark population might be growing, and/or may be using the Gulf of Mexico in higher numbers, there are other confounding variables at play. Given the opportunistic nature of this dataset, it's possible that there simply may have been more people looking for whale sharks in the later years of the study period. This could be because the whales were in a more favorable environment, or maybe the public was better educated about how to submit sightings to the database managers. In summary, while there was a significant increasing trend in sightings over the years, we cannot be sure about how or why that occurred. Conducting systematic surveys looking for whale sharks within the Gulf that have a standardized methodology in the future could help give more confidence in the findings of this analysis, and indicate if there actually are more whales visiting the Gulf of Mexico.
 
-Sea surface temperature did not affect whale shark sightings significantly. This could be because the data we looked at only spanned a few years or because the whale shark data was opportunistic so there may have been more whale sharks than counted.
+Sea surface temperature did not affect whale shark sightings significantly. This could be because the data we looked at only spanned a few years or because the whale shark data was opportunistic so there may have been more whale sharks than counted. It is also possible that sea surface temperatures are rising at a slow enough rate that the whale sharks are adapting to the change and do not need to relocate. There is also a chance that further changes in whale shark patterns will occur if their prey is unable to adapt to climate change conditions. This may cause migration or abundance changes in the Atlantic population.
 
 
