@@ -23,7 +23,9 @@ library(dplyr)
 library(cowplot)
 library(trend)
 library(Kendall)
+library(here)
 ```
+
 ## Dataset Information
 
 The Whale Shark Abundance data used in this analysis is from OBIS-SEAMAP. This was one of the only datasets that had multiple records over a long time period which is why we chose to use it. The whale shark data set spans from 1964 to 2010 and has 8,408 records of whale shark sightings. These sightings include chance encounters and individual catalogues. The encounters and photographs were mainly collected by the general public but the database is maintained by professional scientists.
@@ -37,15 +39,12 @@ The Sea Surface Temperature data is from the National Oceanic and Atmospheric Ad
 
 : Table 1: Information on Datasets
 
+
 ## Data Wrangling
 
 First the whale shark dataset was filtered by latitude (17 to 30) and longitude (-98 to -79) to only include observations from the Gulf of Mexico. Date and time were separated into different columns and lubridate was used to turn the date into a date class. For the time series and linear regression analyses, we needed the count of whale sharks found each month. This was done by creating a column for just month and year. Then, a new column was created called total_sightings which was grouped by the month-year column. Lastly, the "distinct" function was used to only include the month-year column and sightings once for each month instead of for each day. Since, there is missing data points for certain months, we created a new data set of all the months between August 2002 and December 2009. This data set was then joined to the whale shark data set. All the months that didn't have data were NA so for the time series the NAs were replaced with zeros.
 
 The sea surface temperature data was wrangling by removing unnecessary columns and the time range was filtered to only include data between August 2002 and December 2009. A month-year column was made similar to the column created for the whale shark data. The sea surface temperature data was combined (using left_join) with the whale shark data using the month-year column and all NAs were omitted.
-## Exploratory Analysis
-Upon beginning the analysis, our main questions were these: has the abundance of whale sharks in the Gulf of Mexico changed over time? If so, did they change in relation to warming sea surface temperatures (SST)? To find out, we first visualized the total sightings of whale sharks in the Gulf of Mexico across our entire study period (2002-2009; Figure XX). This visualization confirmed that a large increase in whale shark abundance appeared to occur after 2008, which gave us the confidence to proceed with our analysis. We then investigated how SST had changed in the Gulf over the course of our study period to confirm that the water temperature had indeed changed (Figure XX). Upon seeing that it had (check this!!), we knew that there was merit to our investigation, and proceeded to look at more nuanced questions within our study.
-
-After seeing that there appeared to be an overall increase in whale shark abundance, we were curious to see if whale shark abundances had changed within the Gulf of Mexico. Was it possible that the warming waters were causing them to potentially migrate to the Gulf in larger numbers? If so, could the changing water have any impact on which region of the Gulf that they favored? We divided the study area into northern and southern halves, along with eastern and western halves, to see if there appeared to be any sort of trade off between the regions over time (Figure XX). The results showed that there was no clear trade off that could be seen. Instead, it appeared that abundance generally increased across all four regions over time. As one last attempt to view any sort of habitat usage trade off, we then compared the abundance of whale sharks over the study period between each latitude parallel of the Gulf of Mexico (Figure XX), along with their abundance between every two longitute parallels (Figure XX). Again, there was no distinct trade off in usage seen; instead, it again appeared that the whale shark abundance simply increased overall in almost every area. This confired that we should not conduct an analysis to see if habitat preferences had changed, and instead simply focus on whether the number of sighted whale sharks had significantly increased over time or not. 
 
 ```{r initial timeseries visulatization}
 #read in data
@@ -76,15 +75,67 @@ sightings_all_months <- left_join(dates, sightings, by ="month_yr")
 sightings_all_months[is.na(sightings_all_months)] <- 0
 ```
 
+```{r sst data, results='hide'}
+#reading in raw sst data
+sst_raw <- read.csv(here("Data/sst_correct_raw.csv"))
 
-``` {r time series plot}
-#initial timeseries
-ggplot(sightings_all_months, aes(x = month_yr, y = total_sightings)) +
-  geom_line() +
-  labs(x = "Date", y = "Total Monthly Sightings", title = "Total Monthly Sightings in the Gulf of Mexico From 2002-2009", caption = "Fig. XX. Time series of montly whale shark sightings in the Gulf of Mexico for the entire study period") +
-  theme_minimal() +
-  theme(plot.caption = element_text(hjust = 0)) +
-  theme(plot.title = element_text(hjust = 0.5)) 
+#Deleting empty columns
+sst_raw_edit <- subset(sst_raw, select = -c(X, X.1, X.2))
+
+#class is integer
+class(sst_raw_edit$Year)
+
+#creating a date column with month and year
+sst_clean <- sst_raw_edit %>% 
+  mutate(month_yr = my(paste(Month,"-",Year)))
+
+#deleting first 7 rows so matches whale shark data
+sst_clean <- sst_clean[-(1:7),]
+
+#date class
+class(sst_clean$month_yr)
+```
+
+```{r whale shark wrangling, echo=FALSE, include=FALSE}
+#restricting data to gom
+whale_points <- read.csv("./Data/whaleshark_data/dataset_points.csv", stringsAsFactors = T)
+
+citation <- read_csv("./Data/whaleshark_data/dataset_citation.csv")
+
+gom <- whale_points %>% filter(latitude >= 17 & latitude <= 30) %>% filter (longitude >= -98 & longitude <= -79)
+
+gom_clean <- gom %>% separate(date_time, into = c('date','time'), sep=" ")
+gom_clean$date <- ymd(gom_clean$date)
+class(gom_clean$date)
+
+#Separate month and year into their own columns
+ws_count <- mutate(gom_clean, month = month(date)) %>% 
+  mutate(gom_clean, year = year(date)) %>% 
+  mutate(month_yr = my(paste(month,"-",year)))
+
+#number of sightings per month-year
+ws_count <- ws_count %>% group_by(month_yr) %>% mutate(total_sightings = n())
+
+#Select month/yr and total sightings from gom_sightings 
+sightings <- ws_count %>% select(month_yr, total_sightings)
+sightings <- distinct(sightings)
+
+#need to fill in all missing months/years
+#generate sequence of all months and years between August 2002 and December 2009
+dates <- as.data.frame(seq(as.Date("2002-08-01"), as.Date("2009-12-01"), "months"))
+colnames(dates)[1] ="month_yr"
+
+#left join that to the new sequence of months and years
+sightings_all_months <- left_join(dates, sightings, by ="month_yr")
+
+#Fill in all NAs as a total sighting of 0
+sightings_all_months[is.na(sightings_all_months)] <- 0
+```
+
+```{r combining.data, echo=FALSE, include=FALSE}
+#combining sst and whale shark sighting data
+combined_clean <- left_join(sightings_all_months, sst_clean, by ="month_yr")
+combined_clean <- na.omit(combined_clean)
 ```
 
 ```{r upper/lower lat analysis}
@@ -179,11 +230,6 @@ western_long_plot <- ggplot(western_long_sightings_all_months, aes(x = month_yr,
   labs(x = "Date", y = "Total Monthly Sightings", title = "Total Monthly Sightings in the Western Longitudes of the Gulf of Mexico") +
   theme_minimal() +
   theme(plot.title = element_text(hjust = 0.5)) 
-```
-
-```{r compare lat/long analysis, fig.height=10}
-# compare all plots together
-plot_grid(upper_lat_plot, lower_lat_plot, eastern_long_plot, western_long_plot, nrow = 4, align = 'v', rel_heights = c(1, 1, 1, 1))
 ```
 
 ```{r individual lat analysis}
@@ -383,12 +429,6 @@ lat_29_plot <- ggplot(lat_29_sightings_all_months, aes(x = month_yr, y = total_s
   theme(plot.title = element_text(hjust = 0.5))
 ```
 
-```{r comparison lat plot, fig.height= 20, fig.width= 10}
-# compare all plots together
-lat_comparison_plot <- plot_grid(lat_20_plot, lat_21_plot, lat_22_plot, lat_23_plot, lat_24_plot, lat_25_plot, lat_26_plot, lat_27_plot, lat_28_plot, lat_29_plot, nrow = 10, align = 'v', rel_heights = c(.1, .1, .1, .1, .1, .1, .1, .1, .1, .1))
-print(lat_comparison_plot)
-```
-
 ```{r compare all individual longs}
 # doing longs - counting 2 by 2
 long_80 <- gom_sightings %>% filter(longitude < -80 & longitude >= -82) # n = 3
@@ -568,13 +608,100 @@ long_96_plot <- ggplot(long_96_sightings_all_months, aes(x = month_yr, y = total
   theme(plot.title = element_text(hjust = 0.5))
 ```
 
+## Exploratory Analysis
+Upon beginning the analysis, our main questions were these: has the abundance of whale sharks in the Gulf of Mexico changed over time? If so, did they change in relation to warming sea surface temperatures (SST)? To find out, we first visualized the total sightings of whale sharks in the Gulf of Mexico across our entire study period (2002-2009; Figure XX). This visualization confirmed that a large increase in whale shark abundance appeared to occur after 2008, which gave us the confidence to proceed with our analysis. We then investigated how SST had changed in the Gulf over the course of our study period to confirm that the water temperature had indeed changed (Figure XX). Upon seeing that it had (check this!!), we knew that there was merit to our investigation, and proceeded to look at more nuanced questions within our study.
+
+After seeing that there appeared to be an overall increase in whale shark abundance, we were curious to see if whale shark abundances had changed within the Gulf of Mexico. Was it possible that the warming waters were causing them to potentially migrate to the Gulf in larger numbers? If so, could the changing water have any impact on which region of the Gulf that they favored? We divided the study area into northern and southern halves, along with eastern and western halves, to see if there appeared to be any sort of trade off between the regions over time (Figure XX). The results showed that there was no clear trade off that could be seen. Instead, it appeared that abundance generally increased across all four regions over time. As one last attempt to view any sort of habitat usage trade off, we then compared the abundance of whale sharks over the study period between each latitude parallel of the Gulf of Mexico (Figure XX), along with their abundance between every two longitute parallels (Figure XX). Again, there was no distinct trade off in usage seen; instead, it again appeared that the whale shark abundance simply increased overall in almost every area. This confired that we should not conduct an analysis to see if habitat preferences had changed, and instead simply focus on whether the number of sighted whale sharks had significantly increased over time or not. 
+
+``` {r time series plot}
+#initial timeseries
+ggplot(sightings_all_months, aes(x = month_yr, y = total_sightings)) +
+  geom_line() +
+  labs(x = "Date", y = "Total Monthly Sightings", title = "Total Monthly Sightings in the Gulf of Mexico From 2002-2009", caption = "Fig. 1. Time series of montly whale shark sightings in the Gulf of Mexico for the entire study period") +
+  theme_minimal() +
+  theme(plot.caption = element_text(hjust = 0)) +
+  theme(plot.title = element_text(hjust = 0.5)) 
+```
+
+<br> 
+
+```{r SST.plot, echo=FALSE, message=FALSE, warning=FALSE}
+sst.plot <-
+  ggplot(sst_clean, aes(x=month_yr,y=Anomaly))+
+  geom_point()+
+  geom_smooth(method="lm",color="blue",se=FALSE)+
+  labs(
+  x="Date",
+  y="Sea Surface Temperature (Anomaly)",
+  title = "Sea Surface Temperature over Time"
+  )
+
+print(sst.plot)
+```
+
+Figure 2. Shows that sea surface temperature anomaly is increasing slightly over time.
+
+<br>
+
+```{r compare lat/long analysis, fig.height=10}
+# compare all plots together
+plot_grid(upper_lat_plot, lower_lat_plot, eastern_long_plot, western_long_plot, nrow = 4, align = 'v', rel_heights = c(1, 1, 1, 1))
+```
+
+Figure 3. A four-panel comparison of whale shark sightings in the northern and southern halves of the Gulf of Mexico, followed by the Eastern and Western halves. Each category of sightings had different time periods associated with them, so note the differences in the x axes.
+
+<br>
+
+```{r comparison lat plot, fig.height= 20, fig.width= 10}
+# compare all plots together
+lat_comparison_plot <- plot_grid(lat_20_plot, lat_21_plot, lat_22_plot, lat_23_plot, lat_24_plot, lat_25_plot, lat_26_plot, lat_27_plot, lat_28_plot, lat_29_plot, nrow = 10, align = 'v', rel_heights = c(.1, .1, .1, .1, .1, .1, .1, .1, .1, .1))
+print(lat_comparison_plot)
+```
+
+Figure 4. A comparison of whale shark sightings within each latitude parallel of the Gulf of Mexcio.
+
+<br> 
+
 ```{r individual long plot comparison, fig.height= 20, fig.width= 10}
 # compare all plots together
 long_comparison_plot <- plot_grid(long_80_plot, long_82_plot, long_84_plot, long_86_plot, long_88_plot, long_90_plot, long_92_plot, long_94_plot, long_96_plot, nrow = 9, align = 'v', rel_heights = c(.1, .1, .1, .1, .1, .1, .1, .1, .1))
 print(long_comparison_plot)
 ```
 
+Figure 5. A comparison of whale shark sightings within every two longitude parallels of the Gulf of Mexico.
+
+
+## Analysis
+
+### Time Series Analysis of Whale Shark Sightings Over Time
+
+### Sea Surface Temperature vs. Whale Shark Sightings
+
+```{r sst.whale, echo=FALSE, message=FALSE, warning=FALSE, fig.cap="Figure 6: Sea Surface Temperature vs. Whale Shark Sightings"}
+#plot of whale shark sightings by sea surface temperature anomalies
+combined.plot <-
+  ggplot(combined_clean, aes(x=Anomaly,y=total_sightings))+
+  geom_point()+
+  geom_smooth(method="lm",color="blue",se=FALSE)+
+  labs(
+  x="Sea Surface Temperature (Anomaly)",
+  y="Whale Shark Sightings",
+  title = "Sea Surface Temperature vs. Whale Shark Sightings"
+  )
+
+print(combined.plot)
+```
+
+Figure 6 shows that there is an increase in whale shark sightings as sea surface temperature anomaly increases. To analyze this increase we used a GLM. The results of the GLM showed that this increase is not significant (p-value = 0.4093, DF=36, R-squared= 0.019).
+
+```{r lm, echo=FALSE, include=FALSE, message=FALSE, warning=FALSE}
+#linear regression of whale shark sightings by sst
+combined.regression <- lm(data=combined_clean,total_sightings~Anomaly)
+summary(combined.regression)
+```
+
 ```{r monthly time series}
+
 ##### Next Analysis - test for increasing trend over all time. Need to take out seasonality ####
 # set time series object
 gom_ts <- ts(sightings_all_months$total_sightings, start = c(2002,8), frequency = 12)
@@ -670,6 +797,8 @@ summer_fall_analysis_mk <- Kendall::MannKendall(summer_fall_ts)
 summer_fall_analysis_mk # significant!
 ```
 
+## Summary
 
+Sea surface temperature did not affect whale shark sightings significantly. This could be because the data we looked at only spanned a few years or because the whale shark data was opportunistic so there may have been more whale sharks than counted.
 
 
