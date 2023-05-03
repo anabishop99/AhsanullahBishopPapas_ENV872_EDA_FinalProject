@@ -8,6 +8,8 @@ output:
 editor_options: 
   chunk_output_type: console
 ---
+## Github repo link: 
+https://github.com/anabishop99/AhsanullahBishopPapas_ENV872_EDA_FinalProject
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = FALSE, warning = FALSE, message = FALSE)
@@ -24,7 +26,18 @@ library(cowplot)
 library(trend)
 library(Kendall)
 library(here)
+library(sf)
+library(mapview); mapviewOptions(fgb = FALSE)
+library(leaflet)
 ```
+
+## Rationale
+
+The whale shark species has been split into two major population groups, the Indo-Pacific Ocean and the Atlantic Ocean population, that make up 70% of the species total population. For our analysis, we decided to explore the Atlantic population, specifically in the Gulf of Mexico. The Gulf is a hot spot for feeding and migration and so we hoped to examine the whale shark abundance and its changes here.
+
+First, we analyzed the whale shark observations in the Gulf of Mexico across a 7-year time frame to see if there were any major changes in abundance. We hypothesized that the abundance locations would vary by month depending on migration patterns.
+
+Next, we were curious to see if climate change and rising sea temperatures could have an effect on the abundance of the whale sharks. The whale sharks generally prefer a temperature range of 69-77°F, but could this range change as the sea temperatures rise? We thought that the data may show a shift in location of whale sharks in order to stay in their desired temperature range. 
 
 ## Dataset Information
 
@@ -608,6 +621,12 @@ long_96_plot <- ggplot(long_96_sightings_all_months, aes(x = month_yr, y = total
   theme(plot.title = element_text(hjust = 0.5))
 ```
 
+```{r}
+#removing unneccessary data
+gom_final<- gom_clean %>% 
+  select(dataset_id, row_id, latitude, longitude, species_name, date, time, last_mod)
+```
+
 ## Exploratory Analysis
 Upon beginning the analysis, our main questions were these: has the abundance of whale sharks in the Gulf of Mexico changed over time? If so, did they change in relation to warming sea surface temperatures (SST)? To find out, we first visualized the total sightings of whale sharks in the Gulf of Mexico across our entire study period (2002-2009; Figure XX). This visualization confirmed that a large increase in whale shark abundance appeared to occur after 2008, which gave us the confidence to proceed with our analysis. We then investigated how SST had changed in the Gulf over the course of our study period to confirm that the water temperature had indeed changed (Figure XX). Upon seeing that it had (check this!!), we knew that there was merit to our investigation, and proceeded to look at more nuanced questions within our study.
 
@@ -625,7 +644,7 @@ ggplot(sightings_all_months, aes(x = month_yr, y = total_sightings)) +
 
 <br> 
 
-```{r SST.plot, echo=FALSE, message=FALSE, warning=FALSE}
+```{r SST.plot, echo=FALSE, message=FALSE, warning=FALSE, fig.cap="Figure 2. Sea Surface Temperature over Time"}
 sst.plot <-
   ggplot(sst_clean, aes(x=month_yr,y=Anomaly))+
   geom_point()+
@@ -639,7 +658,7 @@ sst.plot <-
 print(sst.plot)
 ```
 
-Figure 2. Shows that sea surface temperature anomaly is increasing slightly over time.
+Figure 2 shows that sea surface temperature anomaly is increasing slightly over time.
 
 <br>
 
@@ -670,37 +689,38 @@ print(long_comparison_plot)
 
 Figure 5. A comparison of whale shark sightings within every two longitude parallels of the Gulf of Mexico.
 
+```{r}
+gom_sf<-st_as_sf(gom_final, coords = c("longitude","latitude"), crs=4326)
+
+#plot of map
+#ggplot(gom_sf)+
+ # geom_sf(aes(geometry=geometry))
+
+#map projected
+#mapview(gom_sf)
+
+#Monthly Map
+gom_final<- mutate(gom_sf, month= month(date))
+gom_final<- mutate(gom_final, year=year(date))
+
+
+mapview(gom_final, zcol= "month", at = seq(1:12), legend = TRUE)
+
+```
+Figure 6. This map shows the location of whale shark observations by month
+
+As you can see, the whale sharks seem to be aggregating around the Yucatan Peninsula during the late summer/early fall months and migrating to the northern region of the Gulf during the winter months. 
+
+```{r}
+gom_sft<-st_as_sf(gom, coords = c("longitude","latitude"), crs=4326)
+#mapview(gom_sft)
+```
 
 ## Analysis
 
 ### Time Series Analysis of Whale Shark Sightings Over Time
 
-### Sea Surface Temperature vs. Whale Shark Sightings
-
-```{r sst.whale, echo=FALSE, message=FALSE, warning=FALSE, fig.cap="Figure 6: Sea Surface Temperature vs. Whale Shark Sightings"}
-#plot of whale shark sightings by sea surface temperature anomalies
-combined.plot <-
-  ggplot(combined_clean, aes(x=Anomaly,y=total_sightings))+
-  geom_point()+
-  geom_smooth(method="lm",color="blue",se=FALSE)+
-  labs(
-  x="Sea Surface Temperature (Anomaly)",
-  y="Whale Shark Sightings",
-  title = "Sea Surface Temperature vs. Whale Shark Sightings"
-  )
-
-print(combined.plot)
-```
-
-Figure 6 shows that there is an increase in whale shark sightings as sea surface temperature anomaly increases. To analyze this increase we used a GLM. The results of the GLM showed that this increase is not significant (p-value = 0.4093, DF=36, R-squared= 0.019).
-
-```{r lm, echo=FALSE, include=FALSE, message=FALSE, warning=FALSE}
-#linear regression of whale shark sightings by sst
-combined.regression <- lm(data=combined_clean,total_sightings~Anomaly)
-summary(combined.regression)
-```
-
-```{r monthly time series}
+```{r monthly time series, echo=FALSE, include=FALSE, message=FALSE, warning=FALSE}
 
 ##### Next Analysis - test for increasing trend over all time. Need to take out seasonality ####
 # set time series object
@@ -708,8 +728,6 @@ gom_ts <- ts(sightings_all_months$total_sightings, start = c(2002,8), frequency 
 
 # decompose time series
 gom_ts_decomposed <- stl(gom_ts, s.window = "periodic")
-
-plot(gom_ts_decomposed)
 
 # run monotonic trend analysis - seasonal Mann Kendall ##### NOTE! This had too few observations to be valid. I'll do it by year instead
 gom_sighting_analysis <- Kendall::SeasonalMannKendall(gom_ts)
@@ -719,7 +737,13 @@ gom_sighting_analysis
 summary(gom_sighting_analysis)
 ```
 
-```{r yearly time series}
+```{r, echo=FALSE, warning=FALSE, fig.cap="Figure 7. The decomposed time series of monthly sightings in the Gulf of Mexico"}
+plot(gom_ts_decomposed)
+```
+
+The increasing trend of monthly sightings in the Gulf of Mexico was significant (tau = 0.32, p = 0.002). However, there were not enough sightings per month for the analysis to be valid. Therefore, I aggregated the sightings by year instead and analyzed the time series again.
+
+```{r yearly time series, echo=FALSE, include=FALSE, message=FALSE, warning=FALSE}
 ### new attempt, grouping by year
 gom_yearly_sightings <- gom_sightings %>% group_by(year) %>% mutate(total_sightings = n())
 
@@ -728,14 +752,6 @@ gom_yearly_sightings <- gom_sightings %>% group_by(year) %>% mutate(total_sighti
 #Select month/yr and total sightings from gom_sightings 
 yearly_sightings <- gom_yearly_sightings %>% select(year, total_sightings)
 yearly_sightings <- distinct(yearly_sightings)
-
-#initial timeseries
-ggplot(yearly_sightings, aes(x = year, y = total_sightings)) +
-  geom_line() +
-  labs(x = "Date", y = "Total Yearly Sightings", title = "Total Yearly Sightings in the Gulf of Mexico", caption = "Fig. XX. Total sightings in the Gulf of Mexico for the entire study period, aggregated by year") +
-  theme_minimal() +
-  theme(plot.title = element_text(hjust = 0.5)) +
-  theme(plot.caption = element_text(hjust = 0))
 
 # set time series object
 gom_yearly_ts <- ts(yearly_sightings$total_sightings, start = c(2002), frequency = 1)
@@ -757,7 +773,19 @@ gom_yearly_sighting_analysis_lm
 summary(gom_yearly_sighting_analysis_lm)
 ```
 
-```{r seasonal time series}
+```{r, echo= FALSE, message = FALSE}
+#initial timeseries
+ggplot(yearly_sightings, aes(x = year, y = total_sightings)) +
+  geom_line() +
+  labs(x = "Date", y = "Total Yearly Sightings", title = "Total Yearly Sightings in the Gulf of Mexico", caption = "Fig. 8. Total sightings in the Gulf of Mexico for the entire study period, aggregated by year") +
+  theme_minimal() +
+  theme(plot.title = element_text(hjust = 0.5)) +
+  theme(plot.caption = element_text(hjust = 0))
+```
+
+The results of this analysis did not show that there was an increasing trend using a Mann-Kendall analysis (tau = 0.43, p = 0.17). However, we conducted a linear regression analysis on the data as well, and that test did return positive results (p = 0.04). However, due to the conflicting results of the tests and the p value from the linear regression still being rather large, we felt that a third analysis could improve the strength of our conclusions. Therefore, we isolated the months in which whale sharks were the most frequently seen (June - September; Figure 8), and performed a final Mann-Kendall analysis on those months. The results showed that there was a significant increase in sightings over those "hot spot" months over time (tau = 0.38, p = 0.004).
+
+```{r seasonal time series, echo=FALSE, include=FALSE, message=FALSE, warning=FALSE}
 ## aggregate by high sighting months only then do a mann-kendall - NOT SEASONAL - on that!
 
 # analysis on only June-Sept
@@ -776,12 +804,6 @@ summer_fall_sightings <- left_join(summer_fall_dates, summer_fall_sightings, by 
 #Fill in all NAs as a total sighting of 0
 summer_fall_sightings[is.na(summer_fall_sightings)] <- 0
 
-summer_fall_plot <- ggplot(summer_fall_sightings, aes(x = month_yr, y = total_sightings)) +
-  geom_line() +
-  labs(x = "Date", y = "Total Monthly Sightings", title = "Total Monthly Sightings from June through September") +
-  theme_minimal() +
-  theme(plot.title = element_text(hjust = 0.5))
-
 # set time series object
 summer_fall_ts <- ts(summer_fall_sightings$total_sightings, start = c(2002), frequency = 1)
 
@@ -797,7 +819,102 @@ summer_fall_analysis_mk <- Kendall::MannKendall(summer_fall_ts)
 summer_fall_analysis_mk # significant!
 ```
 
+```{r, fig.cap="Fig. 9. Time series of whale shark sightings over the months in which whale sharks were most frequently spotted (June-September)"}
+ggplot(summer_fall_sightings, aes(x = month_yr, y = total_sightings)) +
+  geom_line() +
+  labs(x = "Date", y = "Total Monthly Sightings", title = "Total Monthly Sightings from June through September") +
+  theme_minimal() +
+  theme(plot.title = element_text(hjust = 0.5))
+```
+
+Map of Monthly Hotspots
+```{r}
+#monthly data
+monthly<- gom_final %>% 
+  filter(month==6|month== 7| month== 8| month==9)
+
+#Fig 10. This map portrays the location of whale shark observations during the months of June through September as these months seem to have the most sightings. 
+
+#map of monthly hotspots
+mapview(monthly, zcol= "month", cex= 3)
+
+#map of monthly hotspot by year
+monthly2002<- monthly %>% 
+  filter(year==2002)
+mapview(monthly2002, zcol= "month")
+
+monthly2003<- monthly %>% 
+  filter(year==2003)
+mapview(monthly2003, zcol= "month")
+
+monthly2004<- monthly %>% 
+  filter(year==2004)
+mapview(monthly2004, zcol= "month")
+```
+Caption: We decided mapping the whale shark abundance by year was not the most effective way to observe the data as there were too many years that had too little observations or only had observations for a single month. 
+
+Whale Shark data by Year
+```{r}
+mapview(gom_final, zcol= "year")
+```
+Caption: We encourage you to zoom in to the tip of the Yucatan Penninsula to better observe the abundance of whale sharks in this region. As you can see, there seems to be more whale sharks moving south towards the equator during 2009. 
+
+Observations in June By Year
+```{r}
+june<- gom_final %>% 
+  filter(month==6)
+mapview(june, zcol= "year")
+```
+
+Observations in July By Year
+```{r}
+july<- gom_final %>% 
+  filter(month==7)
+mapview(july, zcol= "year")
+```
+
+Observations in August By Year
+```{r}
+august<- gom_final %>% 
+  filter(month==8)
+mapview(august, zcol= "year")
+```
+
+Observations In September By Year
+```{r}
+september<- gom_final %>% 
+  filter(month==9)
+mapview(september, zcol= "year")
+```
+
+### Sea Surface Temperature vs. Whale Shark Sightings
+
+```{r sst.whale, echo=FALSE, message=FALSE, warning=FALSE, fig.cap="Figure 9. Sea Surface Temperature vs. Whale Shark Sightings"}
+#plot of whale shark sightings by sea surface temperature anomalies
+combined.plot <-
+  ggplot(combined_clean, aes(x=Anomaly,y=total_sightings))+
+  geom_point()+
+  geom_smooth(method="lm",color="blue",se=FALSE)+
+  labs(
+  x="Sea Surface Temperature (Anomaly)",
+  y="Whale Shark Sightings",
+  title = "Sea Surface Temperature vs. Whale Shark Sightings"
+  )
+
+print(combined.plot)
+```
+
+Figure 9 shows that there is an increase in whale shark sightings as sea surface temperature anomaly increases. To analyze this increase we used a GLM. The results of the GLM showed that this increase is not significant (p-value = 0.4093, DF=36, R-squared= 0.019).
+
+```{r lm, echo=FALSE, include=FALSE, message=FALSE, warning=FALSE}
+#linear regression of whale shark sightings by sst
+combined.regression <- lm(data=combined_clean,total_sightings~Anomaly)
+summary(combined.regression)
+```
+
 ## Summary
+
+Overall, there was a significant increase in whale shark sightings overtime throughout the study area. While this could be an encouraging result that may indicate the whale shark population might be growing, and/or may be using the Gulf of Mexico in higher numbers, there are other confounding variables at play. Given the opportunistic nature of this dataset, it's possible that there simply may have been more people looking for whale sharks in the later years of the study period. This could be because the whales were in a more favorable environment, or maybe the public was better educated about how to submit sightings to the database managers. In summary, while there was a signficiant increasing trend in sightings over the years, we cannot be sure about how or why that occurred. Conducting systematic surveys looking for whale sharks within the Gulf that have a standardized methodology in the future could help give more confidence in the findings of this analysis, and indicate if there actually are more whales visiting the Gulf of Mexico.
 
 Sea surface temperature did not affect whale shark sightings significantly. This could be because the data we looked at only spanned a few years or because the whale shark data was opportunistic so there may have been more whale sharks than counted.
 

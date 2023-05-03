@@ -1,0 +1,146 @@
+---
+title: "JasmineDataWrangling"
+output: pdf_document
+date: "2023-04-17"
+editor_options: 
+  chunk_output_type: console
+---
+
+Rationale
+
+The whale shark species has been split into two major population groups, the Indo-Pacific Ocean and the Atlantic Ocean population, that make up 70% of the species total population. For our analysis, we decided to explore the Atlantic population, specifically in the Gulf of Mexico. The Gulf is a hot spot for feeding and migration and so we hoped to examine the whale shark abundance and its changes here. 
+
+First, we analyzed the whale shark observations  in the Gulf of Mexico across a 7 year time frame to see if there were any major changes in abundance. We hypothesized that the abundance locations would vary by month depending on migration patterns.
+
+Next, we were curious to see if climate change and rising sea temperatures could have an effect on the abundance of the whale sharks. The whale sharks prefer warm waters, but would there be a limit to the range of temperatures they prefer? 
+
+```{r setup, include=FALSE}
+#load libraries
+library(tidyverse)
+library(lubridate)
+library(here)
+library(dplyr)
+library(sf)
+
+#check wd
+getwd()
+
+#load csvs
+points <- read_csv("./Data/whaleshark_data/dataset_points.csv")
+citation <- read_csv("./Data/whaleshark_data/dataset_citation.csv")
+
+
+gom <- points %>% filter(latitude >= 17 & latitude <= 30) %>% filter (longitude >= -98 & longitude <= -79)
+
+gom_clean <- gom %>% separate(date_time, into = c('date','time'), sep=" ")
+
+gom_clean$date <- ymd(gom_clean$date)
+
+write.csv(gom_clean, "./Data/whaleshark_data/cleaned_gom_data.csv", row.names=FALSE)
+
+```
+
+```{r}
+#removing unneccessary data
+gom_final<- gom_clean %>% 
+  select(dataset_id, row_id, latitude, longitude, species_name, date, time, last_mod)
+
+```
+
+Spatial Analysis
+```{r}
+#loading packages
+library(sf)
+library(mapview); mapviewOptions(fgb = FALSE)
+library(leaflet)
+
+
+```
+
+
+Creating Baseline Maps
+```{r}
+gom_sf<-st_as_sf(gom_final, coords = c("longitude","latitude"), crs=4326)
+
+#plot of map
+ggplot(gom_sf)+
+  geom_sf(aes(geometry=geometry))
+
+#map projected
+mapview(gom_sf)
+
+#Monthly Map
+gom_final<- mutate(gom_sf, month= month(date))
+gom_final<- mutate(gom_final, year=year(date))
+
+
+mapview(gom_final, zcol= "month", at = seq(1:12), legend = TRUE)
+
+```
+CAPTION: This map shows the location of whale shark observations by month. As you can see, the whale sharks seem to be aggregating around the Yucatan Peninsula during the late summer/early fall months and migrating to the northern region of the Gulf during the winter months. 
+
+```{r}
+gom_sft<-st_as_sf(gom, coords = c("longitude","latitude"), crs=4326)
+mapview(gom_sft)
+```
+
+Map of Monthly Hotspots
+```{r}
+#monthly data
+monthly<- gom_final %>% 
+  filter(month==6|month== 7| month== 8| month==9)
+
+#Caption: This map portrays the location of whale shark observations during the months of June through September as these months seem to have the most sightings. 
+
+#map of monthly hotspots
+mapview(monthly, zcol= "month", cex= 3)
+
+#map of monthly hotspot by year
+monthly2002<- monthly %>% 
+  filter(year==2002)
+mapview(monthly2002, zcol= "month")
+
+monthly2003<- monthly %>% 
+  filter(year==2003)
+mapview(monthly2003, zcol= "month")
+
+monthly2004<- monthly %>% 
+  filter(year==2004)
+mapview(monthly2004, zcol= "month")
+```
+Caption: We decided mapping the whale shark abundance by year was not the most effective way to observe the data as there were too many years that had too little observations or only had observations for a single month. 
+
+Whale Shark data by Year
+```{r}
+mapview(gom_final, zcol= "year")
+```
+Caption: We encourage you to zoom in to the tip of the Yucatan Penninsula to better observe the abundance of whale sharks in this region. As you can see, there seems to be more whale sharks moving south towards the equator during 2009. 
+
+Observations in June By Year
+```{r}
+june<- gom_final %>% 
+  filter(month==6)
+mapview(june, zcol= "year")
+```
+
+Observations in July By Year
+```{r}
+july<- gom_final %>% 
+  filter(month==7)
+mapview(july, zcol= "year")
+```
+
+Observations in August By Year
+```{r}
+august<- gom_final %>% 
+  filter(month==8)
+mapview(august, zcol= "year")
+```
+
+Observations In September By Year
+```{r}
+september<- gom_final %>% 
+  filter(month==9)
+mapview(september, zcol= "year")
+```
+
